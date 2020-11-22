@@ -134,6 +134,15 @@ func firestoreHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		fmt.Fprintln(w, "success updating")
+		// 削除処理
+	case http.MethodDelete:
+		id := strings.TrimPrefix(r.URL.Path, "/firestore/")
+		_, err := client.Collection("users").Doc(id).Delete(ctx)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		fmt.Fprintln(w, "success deleting")
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
