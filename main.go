@@ -63,7 +63,6 @@ func firestoreHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Print("success: id is %v", ref.ID)
 		fmt.Fprintf(w, "success: id is %v \n", ref.ID)
-		// それ以外のHTTPメソッド
 		// 取得処理
 	case http.MethodGet:
 		id := strings.TrimPrefix(r.URL.Path, "/firestore/")
@@ -119,6 +118,22 @@ func firestoreHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			w.Write(json)
 		}
+		// 更新処理
+	case http.MethodPut:
+		u, err := getUserBody(r)
+		if err != nil {
+			log.Fatal(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		_, err = client.Collection("users").Doc(u.Id).Set(ctx, u)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprintln(w, "success updating")
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
